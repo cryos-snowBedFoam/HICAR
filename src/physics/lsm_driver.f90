@@ -44,7 +44,7 @@ module land_surface
     use icar_constants,      only : kVARS, kLSM_SIMPLE, kLSM_NOAH, kLSM_NOAHMP, kLSM_FSM
     use options_interface,   only : options_t
     use domain_interface,    only : domain_t
-    use module_ra_simple, only: calc_solar_elevation
+    use module_ra_simple, only: calc_solar_elevation, calc_solar_elevation_corr
     use io_routines,          only : io_write
 
     use module_sf_FSMdrv,   only : lsm_FSM_init, lsm_FSM,Esrf_,Tsrf, KH_ !! MJ added for for FSM
@@ -208,9 +208,9 @@ contains
                          kVARS%humidity_2m, kVARS%surface_pressure, kVARS%longwave_up, kVARS%ground_heat_flux,          &
                          kVARS%soil_totalmoisture, kVARS%soil_deep_temperature, kVARS%roughness_z0, kVARS%ustar,        &
                          kVARS%snow_height, kVARS%lai, kVARS%temperature_2m_veg,                                        &
-                         kVARS%veg_type, kVARS%soil_type, kVARS%land_mask,                                              &
+                         kVARS%veg_type, kVARS%soil_type, kVARS%land_mask, kVARS%snowfall,                              &
                          kVARS%runoff_tstep, kVARS%snowdepth, kVARS%Tsnow, kVARS%Sice, kVARS%Sliq, kVARS%Ds, kVARS%fsnow, kVARS%Nsnow, kVARS%albs, &
-                         kVARS%rainfall_tstep, kVARS%snowfall_tstep, kVARS%meltflux_out_tstep, kVARS%Sliq_out, kVARS%windspd_10m])
+                         kVARS%rainfall_tstep, kVARS%snowfall_tstep, kVARS%meltflux_out_tstep, kVARS%Sliq_out, kVARS%windspd_10m, kVARS%factor_p])
 
              call options%advect_vars([kVARS%potential_temperature, kVARS%water_vapor])
 
@@ -220,7 +220,7 @@ contains
                          kVARS%longwave, kVARS%canopy_water, kVARS%snow_water_equivalent,                               &
                          kVARS%skin_temperature, kVARS%soil_water_content, kVARS%soil_temperature, kVARS%terrain,       &
                          kVARS%sensible_heat, kVARS%latent_heat, kVARS%u_10m, kVARS%v_10m, kVARS%temperature_2m,        &
-                         kVARS%snow_height,                                                                             &  ! BK 2020/10/26
+                         kVARS%snow_height,  kVARS%snowfall,                                                            &  ! BK 2020/10/26
                          kVARS%humidity_2m, kVARS%surface_pressure, kVARS%longwave_up, kVARS%ground_heat_flux,          &
                          kVARS%soil_totalmoisture, kVARS%soil_deep_temperature, kVARS%roughness_z0,                     &
                          kVARS%runoff_tstep, kVARS%snowdepth, kVARS%Tsnow, kVARS%Sice, kVARS%Sliq, kVARS%Ds, kVARS%fsnow, kVARS%Nsnow, kVARS%albs  ])
@@ -1197,8 +1197,12 @@ contains
 
 
                 do j = jms,jme
-                    solar_elevation  = calc_solar_elevation(date=domain%model_time, lon=domain%longitude%data_2d, &
-                                    j=j, ims=ims,ime=ime,jms=jms,jme=jme,its=its,ite=ite,day_frac=day_frac)
+                    !! MJ commented as it does not work in Erupe
+                    !solar_elevation  = calc_solar_elevation(date=domain%model_time, lon=domain%longitude%data_2d, &
+                    !                j=j, ims=ims,ime=ime,jms=jms,jme=jme,its=its,ite=ite,day_frac=day_frac)
+
+                    solar_elevation  = calc_solar_elevation_corr(date=domain%model_time, lon=domain%longitude%data_2d, &
+                                     j=j, ims=ims,ime=ime,jms=jms,jme=jme,its=its,ite=ite,day_frac=day_frac)
                     domain%cosine_zenith_angle%data_2d(its:ite,j)=sin(solar_elevation(its:ite))
                 enddo
 
@@ -1493,7 +1497,8 @@ contains
             endif
         endif
         
-        if (options%physics%landsurface>0) then
+        if ( (options%physics%landsurface>0 .or. options%physics%watersurface>0 ).and. &
+            .not.(options%physics%boundarylayer==kPBL_DIAGNOSTIC)) then
             call apply_fluxes(domain, dt)
         endif
 

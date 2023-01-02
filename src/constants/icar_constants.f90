@@ -266,6 +266,7 @@ module icar_constants
         integer :: slope_angle        !! MJ added
         integer :: aspect_angle       !! MJ added
         integer :: svf                !! MJ added
+        integer :: factor_p                !! MJ added, precipitaion factor, it is a temporary var
         integer :: Sliq_out           !! MJ added
         integer :: hlm                !! MJ added
         integer :: last_var           !! MJ added
@@ -295,7 +296,8 @@ module icar_constants
                                                             191, 192, 193, 194, 195, 196, 197, 198, 199, 200,  &
                                                             201, 202, 203, 204, 205, 206, 207, 208, 209, 210,  &
                                                             211, 212, 213, 214, 215, 216, 217, 218, 219, 220,  &
-                                                            221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231)
+                                                            221, 222, 223, 224, 225, 226, 227, 228, 229, 230,  &
+                                                            231, 232)
 
     integer, parameter :: kINTEGER_BITS     = storage_size(kINTEGER_BITS)
     integer, parameter :: kMAX_STORAGE_VARS = storage_size(kVARS) / kINTEGER_BITS

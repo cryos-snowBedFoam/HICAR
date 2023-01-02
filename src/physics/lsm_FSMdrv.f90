@@ -27,6 +27,7 @@ module module_sf_FSMdrv
       Sdif,          &
       Sdir,          &
       Sf,            &
+      Sf24h,         &
       Ta,            &
       Ua
     use FSM_interface, only: &
@@ -164,11 +165,29 @@ contains
         LW=domain%longwave%data_2d(its:ite,jts:jte)
         Ps=domain%surface_pressure%data_2d(its:ite,jts:jte)
         Rf=current_rain
-        Sdir=domain%shortwave_direct%data_2d(its:ite,jts:jte)  !Sdir=domain%shortwave%data_2d(its:ite,jts:jte)
-        Sdif=domain%shortwave_diffuse%data_2d(its:ite,jts:jte) !Sdif=0.0
-        Sf=current_snow
-        Ta=domain%temperature_2m%data_2d(its:ite,jts:jte)
-        Qa=domain%humidity_2m%data_2d(its:ite,jts:jte)
+        !!
+        if (options%physics%radiation_downScaling==1) then 
+            Sdir=domain%shortwave_direct%data_2d(its:ite,jts:jte)  !Sdir=domain%shortwave%data_2d(its:ite,jts:jte)
+            Sdif=domain%shortwave_diffuse%data_2d(its:ite,jts:jte) !Sdif=0.0
+        endif
+        if (options%physics%radiation_downScaling==0) then 
+            Sdir=domain%shortwave%data_2d(its:ite,jts:jte)
+            Sdif=0.0
+        endif
+        !!
+        if (options%parameters%factor_p_var == "") then 
+            !if (this_image()==1) write(*,*) "facto_p is not read...FSM"
+            Sf=current_snow
+        endif
+        if (options%parameters%factor_p_var /= "") then 
+            !if (this_image()==1) write(*,*) "facto_p is read...FSM"
+            Sf=current_snow*domain%factor_p%data_2d(its:ite,jts:jte)
+        endif
+        !
+        Sf24h=domain%snowfall_tstep%data_2d(its:ite,jts:jte)
+        !
+        Ta= domain%temperature%data_3d(its:ite,domain%grid%kms,jts:jte)!domain%temperature_2m%data_2d(its:ite,jts:jte)
+        Qa= domain%water_vapor%data_3d(its:ite,domain%grid%kms,jts:jte)!domain%humidity_2m%data_2d(its:ite,jts:jte)
         Ua=windspd
         !!  
         !! FSM processing      

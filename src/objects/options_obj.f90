@@ -667,7 +667,7 @@ contains
                                         lat_ext, lon_ext, swe_ext, hsnow_ext, rho_snow_ext, tss_ext, tsoil2D_ext, tsoil3D_ext, z_ext, time_ext
 
 
-        character(len=MAXVARLENGTH) :: svf_var, hlm_var, slope_var, slope_angle_var, aspect_angle_var   !!MJ added
+        character(len=MAXVARLENGTH) :: svf_var, hlm_var, slope_var, slope_angle_var, aspect_angle_var, factor_p_var   !!MJ added
 
         namelist /var_list/ pvar,pbvar,tvar,qvvar,qcvar,qivar,qrvar,qgvar,qsvar,qncvar,qnivar,qnrvar,qngvar,qnsvar,&
                             i2mvar, i3mvar, i2nvar, i3nvar, i1avar, i2avar, i3avar, i1cvar, i2cvar, i3cvar, &
@@ -678,7 +678,7 @@ contains
                             soiltype_var, soil_t_var,soil_vwc_var,swe_var,soil_deept_var,           &
                             vegtype_var,vegfrac_var, vegfracmax_var, lai_var, canwat_var, linear_mask_var, nsq_calibration_var,  &
                             swdown_var, lwdown_var, sst_var, rain_var, time_var, sinalpha_var, cosalpha_var, &
-                            lat_ext, lon_ext, swe_ext, hsnow_ext, rho_snow_ext, tss_ext, tsoil2D_ext, tsoil3D_ext, z_ext, time_ext, svf_var, hlm_var, slope_var, slope_angle_var, aspect_angle_var!! MJ added
+                            lat_ext, lon_ext, swe_ext, hsnow_ext, rho_snow_ext, tss_ext, tsoil2D_ext, tsoil3D_ext, z_ext, time_ext, svf_var, hlm_var, slope_var, slope_angle_var, aspect_angle_var, factor_p_var!! MJ added
 
         ! no default values supplied for variable names
         hgtvar=""
@@ -770,6 +770,7 @@ contains
         slope_var = ""
         slope_angle_var = ""
         aspect_angle_var = ""
+        factor_p_var = ""
 
 
         open(io_newunit(name_unit), file=filename)
@@ -940,6 +941,7 @@ contains
         options%slope_var             = slope_var
         options%slope_angle_var       = slope_angle_var
         options%aspect_angle_var      = aspect_angle_var
+        options%factor_p_var      = factor_p_var
 
     end subroutine var_namelist
 
