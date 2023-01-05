@@ -53,6 +53,8 @@ UTIL=utilities/
 CONST=constants/
 OBJECTS=objects/
 TESTS=tests/
+FSMcode=FSM/code/
+FSMinter=FSM/code/interface/
 
 ###################################################################
 #	Various compiler specific flags, may need to edit
@@ -346,8 +348,8 @@ ASSERT=-DUSE_ASSERTIONS=$(USE_ASSERTIONS)
 ###################################################################
 # copy required libraries into a directory accessible on compute nodes and set LD_RUN_PATH e.g.
 # export LD_RUN_PATH=$LD_RUN_PATH:/path/to/netcdf/libraries/lib:/path/to/fftw/libraries/lib
-LFLAGS=$(LINK) $(PROF) $(CAF_FLAG) $(CAF_LINK) $(LIBNETCDF) $(LIBFFT) $(PETSC_LIB) $(LIBFSM) 
-FFLAGS=$(COMP) $(PROF) $(CAF_FLAG) $(PREPROC) -DVERSION=\"$(GIT_VERSION)\" $(INCNETCDF) $(INCFFT) $(PETSC_FC_INCLUDES)  $(MODOUTPUT) $(ASSERT) $(INFSM)
+LFLAGS=$(LINK) $(PROF) $(CAF_FLAG) $(CAF_LINK) $(LIBNETCDF) $(LIBFFT) $(PETSC_LIB) #$(LIBFSM) 
+FFLAGS=$(COMP) $(PROF) $(CAF_FLAG) $(PREPROC) -DVERSION=\"$(GIT_VERSION)\" $(INCNETCDF) $(INCFFT) $(PETSC_FC_INCLUDES)  $(MODOUTPUT) $(ASSERT) #$(INFSM)
 
 $(info $$NODENAME    = ${NODENAME})
 $(info $$FC          = ${F90})
@@ -453,7 +455,36 @@ OBJS=	\
 		$(BUILD)io_routines.o		\
 		$(BUILD)data_structures.o	\
 		$(BUILD)vinterp.o			\
-		$(BUILD)array_utilities.o
+		$(BUILD)array_utilities.o   \
+		$(BUILD)MODE_WRITE.o   \
+		$(BUILD)MODULES.o   \
+		$(BUILD)LWRADTOPO.o   \
+		$(BUILD)SWRADTOPO.o   \
+		$(BUILD)CANOPY.o   \
+		$(BUILD)CUMULATE.o   \
+		$(BUILD)DRIVE.o   \
+		$(BUILD)DUMP.o   \
+		$(BUILD)EBALFOR.o   \
+		$(BUILD)EBALSRF_SBG.o   \
+		$(BUILD)EBALSRF.o   \
+		$(BUILD)LUDCMP.o   \
+		$(BUILD)OPEN_FILES.o   \
+		$(BUILD)PHYSICS.o   \
+		$(BUILD)QSAT.o   \
+		$(BUILD)RADIATION.o   \
+		$(BUILD)SETUP.o   \
+		$(BUILD)SNOW.o   \
+		$(BUILD)SNOWCOVERFRACTION.o   \
+		$(BUILD)SOIL.o   \
+		$(BUILD)SFEXCH.o   \
+		$(BUILD)THERMAL.o   \
+		$(BUILD)TRIDIAG.o   \
+        $(BUILD)CUMULATE_interface.o \
+        $(BUILD)DRIVE_interface.o \
+        $(BUILD)MODULES_interface.o \
+        $(BUILD)PHYSICS_interface.o \
+        $(BUILD)SETUP_interface.o \
+        $(BUILD)FSM_interface.o
 
 CAF_TEST_EXECUTABLES = 	caf_options_test 				\
 						caf_init_test 					\
@@ -901,7 +932,66 @@ $(BUILD)lsm_FSMdrv.o: $(PHYS)lsm_FSMdrv.f90 $(BUILD)data_structures.o \
 						$(BUILD)lsm_noahmpdrv.o $(BUILD)lsm_noahmplsm.o \
 						$(BUILD)water_simple.o $(BUILD)icar_constants.o \
 						$(BUILD)domain_h.o $(BUILD)options_h.o			\
-						$(BUILD)atm_utilities.o $(BUILD)ra_simple.o
+						$(BUILD)atm_utilities.o $(BUILD)ra_simple.o $(BUILD)FSM_interface.o
+
+$(BUILD)MODULES.o: $(FSMcode)MODULES.F90
+$(BUILD)MODE_WRITE.o: $(FSMcode)MODE_WRITE.F90
+$(BUILD)LWRADTOPO.o: $(FSMcode)LWRADTOPO.F90 $(BUILD)MODULES.o
+$(BUILD)SWRADTOPO.o: $(FSMcode)SWRADTOPO.F90 $(BUILD)MODULES.o
+$(BUILD)CANOPY.o:    $(FSMcode)CANOPY.F90 $(BUILD)MODULES.o
+$(BUILD)CUMULATE.o:  $(FSMcode)CUMULATE.F90 $(BUILD)MODULES.o $(BUILD)MODE_WRITE.o
+$(BUILD)DRIVE.o:     $(FSMcode)DRIVE.F90 $(BUILD)MODULES.o
+$(BUILD)DUMP.o:        $(FSMcode)DUMP.F90 $(BUILD)MODULES.o $(BUILD)MODE_WRITE.o
+$(BUILD)EBALFOR.o:     $(FSMcode)EBALFOR.F90 $(BUILD)MODULES.o
+$(BUILD)EBALSRF_SBG.o: $(FSMcode)EBALSRF_SBG.F90 $(BUILD)MODULES.o
+$(BUILD)EBALSRF.o:     $(FSMcode)EBALSRF.F90 $(BUILD)MODULES.o
+$(BUILD)LUDCMP.o:      $(FSMcode)LUDCMP.F90 $(BUILD)MODULES.o
+$(BUILD)OPEN_FILES.o:  $(FSMcode)OPEN_FILES.F90 $(BUILD)MODULES.o
+$(BUILD)PHYSICS.o:     $(FSMcode)PHYSICS.F90 $(BUILD)MODULES.o
+$(BUILD)QSAT.o:              $(FSMcode)QSAT.F90 $(BUILD)MODULES.o
+$(BUILD)RADIATION.o:         $(FSMcode)RADIATION.F90 $(BUILD)MODULES.o
+$(BUILD)SETUP.o:             $(FSMcode)SETUP.F90 $(BUILD)MODULES.o
+$(BUILD)SNOW.o:              $(FSMcode)SNOW.F90 $(BUILD)MODULES.o
+$(BUILD)SNOWCOVERFRACTION.o: $(FSMcode)SNOWCOVERFRACTION.F90 $(BUILD)MODULES.o
+$(BUILD)SOIL.o:    $(FSMcode)SOIL.F90 $(BUILD)MODULES.o
+$(BUILD)SFEXCH.o:  $(FSMcode)SFEXCH.F90 $(BUILD)MODULES.o
+$(BUILD)THERMAL.o: $(FSMcode)THERMAL.F90 $(BUILD)MODULES.o
+$(BUILD)TRIDIAG.o: $(FSMcode)TRIDIAG.F90 $(BUILD)MODULES.o
+#
+$(BUILD)CUMULATE_interface.o: $(FSMinter)CUMULATE_interface.F90 $(BUILD)MODULES.o $(BUILD)MODE_WRITE.o
+$(BUILD)DRIVE_interface.o:    $(FSMinter)DRIVE_interface.F90
+$(BUILD)MODULES_interface.o:  $(FSMinter)MODULES_interface.F90
+$(BUILD)PHYSICS_interface.o:  $(FSMinter)PHYSICS_interface.F90
+$(BUILD)SETUP_interface.o:    $(FSMinter)SETUP_interface.F90
+
+$(BUILD)FSM_interface.o: $(FSMinter)FSM_interface.F90 \
+		$(BUILD)MODULES.o   \
+		$(BUILD)LWRADTOPO.o   \
+		$(BUILD)SWRADTOPO.o   \
+		$(BUILD)CANOPY.o   \
+		$(BUILD)CUMULATE.o   \
+		$(BUILD)DRIVE.o   \
+		$(BUILD)DUMP.o   \
+		$(BUILD)EBALFOR.o   \
+		$(BUILD)EBALSRF_SBG.o   \
+		$(BUILD)EBALSRF.o   \
+		$(BUILD)LUDCMP.o   \
+		$(BUILD)OPEN_FILES.o   \
+		$(BUILD)PHYSICS.o   \
+		$(BUILD)QSAT.o   \
+		$(BUILD)RADIATION.o   \
+		$(BUILD)SETUP.o   \
+		$(BUILD)SNOW.o   \
+		$(BUILD)SNOWCOVERFRACTION.o   \
+		$(BUILD)SOIL.o   \
+		$(BUILD)SFEXCH.o   \
+		$(BUILD)THERMAL.o   \
+		$(BUILD)TRIDIAG.o   \
+        $(BUILD)CUMULATE_interface.o \
+        $(BUILD)DRIVE_interface.o \
+        $(BUILD)MODULES_interface.o \
+        $(BUILD)PHYSICS_interface.o \
+        $(BUILD)SETUP_interface.o
 
 ###################################################################
 #	Planetary Boundary Layer code
