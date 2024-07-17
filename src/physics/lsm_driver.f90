@@ -80,7 +80,7 @@ module land_surface
     real,allocatable, dimension(:,:)    :: dTemp,lhdQV, windspd
     real,allocatable, dimension(:)      :: Zs,DZs
     real :: XICE_THRESHOLD
-    integer,allocatable, dimension(:,:) :: IVGTYP,ISLTYP ! IVGTYP not used?
+    integer,allocatable, dimension(:,:) :: IVGTYP,ISLTYP, MahdiFix ! IVGTYP not used?
     integer :: ITIMESTEP, update_interval, cur_vegmonth
 
 !     real, parameter :: kappa=0.4 ! this should be karman from data_structure
@@ -697,6 +697,8 @@ contains
         sh_feedback_fraction = options%lsm_options%sh_feedback_fraction
         sfc_layer_thickness = options%lsm_options%sfc_layer_thickness
 
+        MahdiFix=int(domain%snow_nlayers%data_2d)
+
         allocate(SW(ims:ime,jms:jme))
 
         allocate(dTemp(its:ite,jts:jte))
@@ -931,7 +933,7 @@ contains
                                 domain%soil_water_content_liq%data_3d , &
                                 DZS , FNDSOILW , FNDSNOWH ,             &
                                 domain%skin_temperature%data_2d,        &
-                                int(domain%snow_nlayers%data_2d),       &
+                                MahdiFix,       &
                                 domain%veg_leaf_temperature%data_2d,    &
                                 domain%ground_surf_temperature%data_2d, &
                                 domain%canopy_water_ice%data_2d,        &
@@ -1489,6 +1491,7 @@ contains
                     nmp_snow = domain%snow_water_equivalent%data_2d
                 endif
 
+                MahdiFix=int(domain%snow_nlayers%data_2d)
                 call noahmplsm(ITIMESTEP,                              &
                              domain%model_time%year,                   &
                              domain%model_time%day_of_year(),          &
@@ -1569,7 +1572,7 @@ contains
                              domain%irr_amt_flood%data_2d,             &  ! only used if iopt_irr > 0
                              domain%evap_heat_sprinkler%data_2d,       &  ! only used if iopt_irr > 0
                              landuse_name,                             &
-                             int(domain%snow_nlayers%data_2d),         &
+                             MahdiFix,         &
                              domain%veg_leaf_temperature%data_2d,      &
                              domain%ground_surf_temperature%data_2d,   &
                              domain%canopy_water_ice%data_2d,          &

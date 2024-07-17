@@ -407,6 +407,11 @@ contains
         if (allocated(data_in)) deallocate(data_in)
         allocate(data_in(diminfo(2),diminfo(3),diminfo(4)))
 
+
+             !write(*,*) "    io_read3d---varname/diminfo(1 to 4)", varname, diminfo(1), diminfo(2), diminfo(3), diminfo(4)
+
+
+
         ! Open the file. NF90_NOWRITE tells netCDF we want read-only access to
         ! the file.
         call check(nf90_open(filename, NF90_NOWRITE, ncid),filename)
