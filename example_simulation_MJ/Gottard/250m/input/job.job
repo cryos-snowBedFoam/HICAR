@@ -1,0 +1,24 @@
+#!/bin/bash -l
+#SBATCH --job-name="HICAR250m"
+#SBATCH --time=0-06:00:00
+#SBATCH --output="HICAR250m.out"
+#SBATCH --error="HICAR250m.err"
+#SBATCH --mail-type=NONE
+#SBATCH --nodes=5
+#SBATCH --ntasks-per-core=1    # : Values greater than one turn hyperthreading on. Maximum value: 2.
+#SBATCH --ntasks-per-node=31   # : Defines the number of MPI ranks per node
+#SBATCH --cpus-per-task=1
+#SBATCH --partition=normal
+#SBATCH --constraint=mc
+#SBATCH --hint=nomultithread
+#SBATCH --account=s1242
+#SBATCH --mem=60GB
+#SBATCH --begin=now
+#SBATCH --switches=1
+#SBATCH --switches=1@01:00:00
+
+
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+
+
+srun /users/mjafari/ICAR/HICAR_D/src/icar HICAR_250m.nml
