@@ -31,3 +31,19 @@ Also to set the compiler for your machine if necessary (defaults to gfortran)
 
 ### Example:
     make install MODE=debug -j4  # uses 4 processes to compile in debug mode
+
+
+### Example of how to compile on daint machine in CSCS:
+    
+	For gnu:
+
+	rm -rf build/*; make cleanall; make COMPILER=gnu -j 36 PETSC_DIR=$HOME FSM_DIR=$HOME CAF_DIR=$HOME/OpenCoarrays/src/mpi ; make install
+
+	note that the version of OpenCoarrays:
+		commit 52b1dd35ef27d5f21b0ef4775127f4f975ddec75 (HEAD -> master, origin/master, origin/HEAD)
+		Merge: 15dc8c3 8318f9e
+		Author: Damian Rouson <damian@sourceryinstitute.org>
+		Date:   Tue Feb 4 22:22:16 2020 -0600
+
+	For cray:
+	rm -rf build/*; make cleanall; make COMPILER=cray -j 36 FSM_DIR=$HOME; make install
